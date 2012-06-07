@@ -32,6 +32,10 @@ module Sidekiq
       removed = false
       Sidekiq.client_middleware.invoke(worker_class, item, queue) do
         payload = Sidekiq.dump_json(item)
+        puts '------------'
+        puts payload
+        puts '------------'
+
         Sidekiq.redis do |conn|
           removed = (conn.zrem('schedule', payload) == 1)
         end
@@ -68,10 +72,11 @@ module Sidekiq
 
       pushed = false
       Sidekiq.client_middleware.invoke(worker_class, item, queue) do
+        at = item.delete('at')
         payload = Sidekiq.dump_json(item)
         Sidekiq.redis do |conn|
-          if item['at']
-            pushed = (conn.zadd('schedule', item['at'].to_s, payload) == 1)
+          if at
+            pushed = (conn.zadd('schedule', at.to_s, payload) == 1)
           else
             _, pushed = conn.multi do
               conn.sadd('queues', queue)
