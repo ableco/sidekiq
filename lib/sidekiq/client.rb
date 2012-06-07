@@ -32,9 +32,6 @@ module Sidekiq
       removed = false
       Sidekiq.client_middleware.invoke(worker_class, item, queue) do
         payload = Sidekiq.dump_json(item)
-        puts '------------'
-        puts payload
-        puts '------------'
 
         Sidekiq.redis do |conn|
           removed = (conn.zrem('schedule', payload) == 1)
