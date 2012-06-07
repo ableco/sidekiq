@@ -33,6 +33,10 @@ module Sidekiq
         Sidekiq::Client.push('class' => self, 'args' => args)
       end
 
+      def remove_async(*args)
+        Sidekiq::Client.pop('class' => self, 'args' => args)
+      end
+
       def perform_in(interval, *args)
         int = interval.to_f
         ts = (int < 1_000_000_000 ? Time.now.to_f + int : int)
